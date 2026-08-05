@@ -1,42 +1,54 @@
-# sv
+# Love Lakewood Sunday
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Website for Love Lakewood Sunday — one unified service hosted by churches across
+Lakewood, Colorado.
 
-## Creating a project
+**Sunday, September 20, 2026 · 10:00 a.m. · Bear Creek High School Gymnasium**
 
-If you're seeing this, you've probably already done this step. Congrats!
+> **Read [HANDOFF.md](./HANDOFF.md) first.** It covers what content is still
+> outstanding, where form submissions go, and how to deploy.
 
-```sh
-# create a new project
-npx sv create my-app
+## Running it
+
+```bash
+pnpm install
+pnpm run dev
 ```
 
-To recreate this project with the same configuration:
+Requires **pnpm 11** — if your local pnpm is older, prefix commands with
+`npx pnpm@11`. Copy `.env.example` to `.env` and fill in `DATABASE_URL`.
 
-```sh
-# recreate this project
-pnpm dlx sv@0.17.0 create --template minimal --types ts --add prettier eslint sveltekit-adapter="adapter:netlify" drizzle="database:postgresql+postgresql:neon" better-auth="demo:password" ai-tools="ide:claude-code,cursor+delivery:plugin+tools:mcp,svelte-code-writer,svelte-core-bestpractices,svelte-file-editor+mcpSetup:remote" --install pnpm lovelakewoodsunday
+| Command              | What it does                                   |
+| -------------------- | ---------------------------------------------- |
+| `pnpm run dev`       | Development server                             |
+| `pnpm run build`     | Production build (Netlify adapter)             |
+| `pnpm run check`     | Type-check                                     |
+| `pnpm run lint`      | Prettier + ESLint                              |
+| `pnpm run db:push`   | Apply schema changes to the database           |
+| `pnpm run db:studio` | Browse volunteer sign-ups and contact messages |
+
+## Where things live
+
+```
+src/
+  lib/
+    config/site.ts        Event details, venue, media slots, invitation copy
+    data/
+      churches.ts         Participating churches
+      faq.ts              FAQ questions and answers
+      volunteer.ts        Volunteer roles + what happens during the service
+    components/           Page sections and shared UI
+    server/
+      db/schema.ts        volunteer_signup, contact_message
+      forms.ts            Validation and spam checks
+      notify.ts           Optional email notification
+  routes/                 Pages and endpoints (see HANDOFF.md)
+  app.css                 Design tokens and base styles
 ```
 
-## Developing
+Almost all copy changes happen in `src/lib/config/site.ts` and `src/lib/data/`.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Stack
 
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+SvelteKit 2 (Svelte 5 runes) · TypeScript · Drizzle ORM + Neon Postgres ·
+Netlify adapter. No CSS framework — tokens and component-scoped styles.

@@ -34,8 +34,13 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		rules: {
+			// This site is deployed at the root of its own domain, so there is no
+			// `base` path for resolve() to prepend. Most internal links here also
+			// carry a hash (/#visit, /#faq), which resolve() does not model — so
+			// wrapping them would add noise without changing a single URL.
+			// Revisit if the site is ever hosted under a sub-path.
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );

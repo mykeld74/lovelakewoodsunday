@@ -1,3 +1,5 @@
-# allow crawling everything by default
+# Love Lakewood Sunday — everyone is welcome, crawlers included.
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://lovelakewoodsunday.org/sitemap.xml

@@ -1,0 +1,38 @@
+[build]
+	command = "pnpm run build"
+	publish = "build"
+
+[build.environment]
+	NODE_VERSION = "22"
+
+# Hashed build assets never change under the same name.
+[[headers]]
+	for = "/_app/immutable/*"
+	[headers.values]
+		Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+	for = "/qr.*"
+	[headers.values]
+		Cache-Control = "public, max-age=3600"
+
+# Short, memorable links for print, slides, and pulpit announcements.
+[[redirects]]
+	from = "/qr"
+	to = "/qr.png?source=print&size=1600"
+	status = 302
+
+[[redirects]]
+	from = "/serve"
+	to = "/volunteer"
+	status = 301
+
+[[redirects]]
+	from = "/volunteers"
+	to = "/volunteer"
+	status = 301
+
+[[redirects]]
+	from = "/faq"
+	to = "/#faq"
+	status = 302
