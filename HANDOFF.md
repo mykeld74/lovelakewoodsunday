@@ -47,7 +47,8 @@ billing is the whole point of the design.
 ## Answers to the questions in the brief
 
 **"Should we do a Plan Your Visit button?"** Yes — it's the primary hero button
-and the first nav item. That section is where a nervous first-time guest goes.
+and the first nav item, and it now has a page of its own at `/visit`. That page
+is where a nervous first-time guest goes.
 
 **"How hard is it to include copy/text/email/social share buttons?"** Done.
 `/#invite` has copy-link, text, email, Facebook, and X, plus the native phone
@@ -60,7 +61,8 @@ code (SVG for print, PNG for slides), and four pieces of ready-to-paste wording
 (text, social, bulletin, email). Not linked from the main nav, since it's for
 staff, not guests — it's in the footer and excluded from search engines.
 
-**"Do we need a contact form?"** Included, with the exact fields you listed.
+**"Do we need a contact form?"** Included at `/contact`, with the exact fields you
+listed.
 
 **"Maybe display each church's logo?"** Built for it — drop logo files in and they
 replace the initial tiles. Until then every church gets an identical treatment.
@@ -69,18 +71,39 @@ replace the initial tiles. Until then every church gets an identical treatment.
 
 ## Pages
 
-| Route                | What it is                                                                                                                                               |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                  | The whole event: hero, invitation, plan your visit, what to expect, kids & dress, pastor video, churches, volunteer, invite, find a church, FAQ, contact |
-| `/volunteer`         | "Serve at Love Lakewood Sunday" — role picker + contact details                                                                                          |
-| `/share`             | Share kit for participating churches (not indexed by search engines)                                                                                     |
-| `/invite`            | Short link → redirects to the home page. Good for print and pulpit                                                                                       |
-| `/event.ics`         | "Add to your calendar" download                                                                                                                          |
-| `/qr.svg`, `/qr.png` | QR codes for the invitation link. `?source=bulletin` tags the scan                                                                                       |
-| `/sitemap.xml`       | For search engines                                                                                                                                       |
+The site is organised around the questions a guest actually asks, one per page,
+so nobody has to scroll past things that do not apply to them.
 
-Short links configured in `netlify.toml`: `/serve` and `/volunteers` → `/volunteer`,
-`/faq` → the FAQ section, `/qr` → a print-ready PNG.
+| Route                | What it is                                                                                      |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| `/`                  | The invitation: hero, "you are welcome", three signposts, the churches, invite + volunteer CTAs |
+| `/visit`             | Plan your visit — map, directions, parking, accessibility, when to arrive, kids, what to wear   |
+| `/what-to-expect`    | The hour itself, moment by moment, plus the pastor welcome video                                |
+| `/churches`          | The participating churches, and "looking for a church to call home?"                            |
+| `/faq`               | All twelve questions                                                                            |
+| `/contact`           | Contact form                                                                                    |
+| `/volunteer`         | "Serve at Love Lakewood Sunday" — role picker + contact details                                 |
+| `/share`             | Share kit for participating churches (not indexed by search engines)                            |
+| `/invite`            | Short link → redirects to the home page. Good for print and pulpit                              |
+| `/event.ics`         | "Add to your calendar" download                                                                 |
+| `/qr.svg`, `/qr.png` | QR codes for the invitation link. `?source=bulletin` tags the scan                              |
+| `/sitemap.xml`       | For search engines                                                                              |
+
+Every content page ends with a "next" card, so a guest who arrives from a search
+result or a shared link is always handed the next thing to read rather than a
+dead end.
+
+Short links in `netlify.toml`: `/serve` and `/volunteers` → `/volunteer`,
+`/questions` → `/faq`, `/plan-your-visit` → `/visit`, `/expect` →
+`/what-to-expect`, `/qr` → a print-ready PNG.
+
+### Adding a page
+
+Section components live in `src/lib/components/` and take a `level` prop. Pass
+`level={1}` to whichever section leads a page — that makes its heading the
+page's single `<h1>` without changing how it looks. Then add the route to
+`src/routes/sitemap.xml/+server.ts` and, if it belongs in the main nav, to the
+`links` array in `src/lib/components/Header.svelte`.
 
 ---
 
@@ -150,6 +173,12 @@ Requires pnpm 11 (`npx pnpm@11 <command>` works if your local pnpm is older).
 - **Every promise on the page is one you have to keep** — no offering, no
   registration, no name tags, nobody singled out. If any of those change, change
   the site the same day.
-- The map and the video only load when someone clicks them. That keeps Google's
-  and YouTube's tracking off the page for everyone who never opens them, and the
-  page stays fast on a phone in a parking lot.
+- The map on `/visit` loads straight away, so a guest sees where they are going
+  without having to ask for it. The trade-off is that Google's embed — cookies
+  and roughly half a megabyte of scripts — now loads for everyone who opens that
+  page. If a privacy policy or cookie banner is ever added to the site, this is
+  the thing it has to account for. The written address and the Driving
+  directions / Apple Maps buttons underneath work on their own, so the page still
+  does its job if the embed is blocked.
+- The pastor welcome video still waits for a click. Video embeds are far heavier
+  than a map, and nobody expects a video to start on its own.

@@ -10,6 +10,9 @@
 		message: 'speech',
 		communion: 'cup'
 	};
+
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="expect" class="section surface-deep">
@@ -17,7 +20,9 @@
 		<div class="layout">
 			<div class="intro">
 				<p class="eyebrow">What the morning is like</p>
-				<h2 class="h2">One hour. Nothing you have to figure out in advance.</h2>
+				<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2"
+					>One hour. Nothing you have to figure out in advance.</svelte:element
+				>
 				<p class="lede">
 					The service is meant to be genuinely meaningful if you have been in church your whole life
 					— and completely comfortable if you are just checking it out.

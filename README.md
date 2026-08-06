@@ -37,7 +37,8 @@ src/
       churches.ts         Participating churches
       faq.ts              FAQ questions and answers
       volunteer.ts        Volunteer roles + what happens during the service
-    components/           Page sections and shared UI
+    components/           Page sections and shared UI. Sections take a `level`
+                          prop — pass level={1} to whichever one leads a page.
     server/
       db/schema.ts        volunteer_signup, contact_message
       forms.ts            Validation and spam checks

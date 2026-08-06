@@ -6,12 +6,18 @@
 		title,
 		lede,
 		align = 'start',
+		/**
+		 * 1 when this section leads its own page, so the page gets exactly one
+		 * <h1>. The visual size never changes — only the outline does.
+		 */
+		level = 2,
 		children
 	}: {
 		eyebrow?: string;
 		title: string;
 		lede?: string;
 		align?: 'start' | 'center';
+		level?: 1 | 2;
 		children?: Snippet;
 	} = $props();
 </script>
@@ -20,7 +26,7 @@
 	{#if eyebrow}
 		<p class="eyebrow">{eyebrow}</p>
 	{/if}
-	<h2 class="h2">{title}</h2>
+	<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2">{title}</svelte:element>
 	{#if lede}
 		<p class="lede">{lede}</p>
 	{/if}

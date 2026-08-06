@@ -6,13 +6,18 @@
 
 	const embed = toEmbedUrl(media.welcomeVideo);
 	let playing = $state(false);
+
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="welcome" class="section surface-sand">
 	<div class="container container-narrow">
 		<div class="head">
 			<p class="eyebrow">A word from the pastors</p>
-			<h2 class="h2">The people behind the invitation</h2>
+			<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2"
+				>The people behind the invitation</svelte:element
+			>
 			<p class="lede">
 				Pastors from every participating church share why {churches.length} congregations decided to set
 				their own Sunday aside and gather as one — and why they hope you’ll come.

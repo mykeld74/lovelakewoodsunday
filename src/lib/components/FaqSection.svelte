@@ -2,118 +2,8 @@
 	import { faqs } from '$lib/data/faq';
 	import Icon from './Icon.svelte';
 
-	const DURATION = 280;
-	const EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
-
-	type Controls = { open: () => void; close: () => void };
-
-	/**
-	 * Expand and collapse the answers.
-	 *
-	 * The rule this is built around: an answer nobody can read is far worse
-	 * than an answer that appears without motion. So the animation only ever
-	 * *borrows* the panel — every path, including one where the browser never
-	 * paints a frame, ends by clearing the inline styles and letting the
-	 * element sit at its natural height. A CSS transition on
-	 * `::details-content` cannot promise that: it parks the panel at zero
-	 * height and depends on frames arriving to open it.
-	 *
-	 * With no JS at all, this is still a plain <details> list.
-	 */
-	/** Only ever the one that is open, so opening another can ease it shut. */
-	let openPanel: Controls | null = null;
-
-	function accordion(node: HTMLDetailsElement) {
-		const summary = node.querySelector('summary')!;
-		const answer = node.querySelector<HTMLElement>('.answer')!;
-
-		let animation: Animation | null = null;
-		let failsafe: ReturnType<typeof setTimeout> | undefined;
-		let closing = false;
-
-		/** The one place that decides the final state. Always reachable. */
-		function rest(open: boolean) {
-			clearTimeout(failsafe);
-			animation = null;
-			closing = false;
-			answer.style.height = '';
-			answer.style.overflow = '';
-			node.open = open;
-		}
-
-		function play(from: number, to: number, endsOpen: boolean) {
-			animation?.cancel();
-			clearTimeout(failsafe);
-
-			answer.style.overflow = 'hidden';
-			answer.style.height = `${from}px`;
-
-			animation = answer.animate(
-				{ height: [`${from}px`, `${to}px`] },
-				{ duration: DURATION, easing: EASING }
-			);
-			animation.onfinish = () => rest(endsOpen);
-
-			// If frames never arrive — a background tab, a stalled compositor —
-			// `onfinish` never fires. Land on the correct resting state anyway.
-			failsafe = setTimeout(() => {
-				animation?.cancel();
-				rest(endsOpen);
-			}, DURATION + 150);
-		}
-
-		const skipMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-		const controls: Controls = {
-			open() {
-				if (openPanel && openPanel !== controls) openPanel.close();
-				openPanel = controls;
-
-				// Read before cancelling, so interrupting a close resumes from
-				// where it had got to rather than jumping.
-				const from = node.open ? answer.getBoundingClientRect().height : 0;
-				animation?.cancel();
-				node.open = true;
-
-				if (skipMotion()) return rest(true);
-
-				/*
-					`scrollHeight`, not `getBoundingClientRect()`. The content has
-					only just been revealed, and until the browser lays it out the
-					panel still measures its collapsed height — animating to that
-					would clip the answer to a few stray pixels.
-				*/
-				play(from, answer.scrollHeight, true);
-			},
-
-			close() {
-				if (openPanel === controls) openPanel = null;
-				if (skipMotion()) return rest(false);
-
-				const from = answer.getBoundingClientRect().height;
-				closing = true;
-				play(from, 0, false);
-			}
-		};
-
-		function onSummaryClick(event: MouseEvent) {
-			// Take over the native toggle so both directions can be animated.
-			event.preventDefault();
-			if (node.open && !closing) controls.close();
-			else controls.open();
-		}
-
-		summary.addEventListener('click', onSummaryClick);
-
-		return {
-			destroy() {
-				summary.removeEventListener('click', onSummaryClick);
-				animation?.cancel();
-				clearTimeout(failsafe);
-				if (openPanel === controls) openPanel = null;
-			}
-		};
-	}
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="faq" class="section">
@@ -121,12 +11,14 @@
 		<div class="layout">
 			<div class="intro">
 				<p class="eyebrow">Questions</p>
-				<h2 class="h2">The things people actually wonder about</h2>
+				<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2"
+					>The things people actually wonder about</svelte:element
+				>
 				<p class="lede">
 					If something you are wondering isn’t here, ask us. No question is too basic, and nobody
 					will add you to a list for asking.
 				</p>
-				<a class="btn btn-outline" href="#contact">
+				<a class="btn btn-outline" href="/contact">
 					<Icon name="message" size={18} />
 					Ask your own question
 				</a>
@@ -134,15 +26,23 @@
 
 			<div class="list">
 				{#each faqs as faq (faq.id)}
-					<details id="faq-{faq.id}" use:accordion>
+					<!--
+						`name` makes these exclusive — opening one closes another —
+						same as a classic accordion, no script required.
+					-->
+					<details id="faq-{faq.id}" name="faq">
 						<summary>
 							<span>{faq.question}</span>
 							<span class="chevron" aria-hidden="true"></span>
 						</summary>
 						<div class="answer">
-							{#each faq.answer as paragraph (paragraph)}
-								<p>{paragraph}</p>
-							{/each}
+							<div class="answerClip">
+								<div class="answerBody">
+									{#each faq.answer as paragraph (paragraph)}
+										<p>{paragraph}</p>
+									{/each}
+								</div>
+							</div>
 						</div>
 					</details>
 				{/each}
@@ -239,24 +139,54 @@
 		transform: translate(-50%, -50%) rotate(180deg);
 	}
 
-	.answer {
-		padding-bottom: 1.35rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		max-width: 44rem;
+	/*
+		The UA sets content-visibility: hidden on closed details, which
+		skips the panel in the render tree. First open then has no 0fr
+		value to interpolate from — it snaps — and only later opens
+		animate. Keep it visible; the grid clip below is what hides it.
+	*/
+	details::details-content {
+		content-visibility: visible;
 	}
 
 	/*
-		No CSS transition on `::details-content` here, deliberately: it holds the
-		panel at zero height and relies on frames arriving to open it, so a
-		stalled compositor leaves the answer unreadable. The height is animated
-		from the `accordion` action instead, which always resolves to the
-		natural height.
+		Slide with grid rows instead of height: auto — interpolates in every
+		current browser, so close stays smooth even where interpolate-size
+		isn't available yet.
 	*/
+	.answer {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+	}
 
-	.answer p {
+	details[open] .answer {
+		grid-template-rows: 1fr;
+	}
+
+	/* Clip layer is the grid item — padding lives one level deeper so 0fr
+	   can actually reach zero (padding on the grid item itself won't). */
+	.answerClip {
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	.answerBody {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding-bottom: 1.35rem;
+		max-width: 44rem;
+	}
+
+	.answerBody p {
 		color: var(--ink-soft);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.answer {
+			transition: none;
+		}
 	}
 
 	@media (min-width: 960px) {

@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { churches } from '$lib/data/churches';
 	import ChurchLogo from './ChurchLogo.svelte';
+
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="churches" class="section">
 	<div class="container">
 		<div class="head">
 			<p class="eyebrow">Hosted together</p>
-			<h2 class="h2">{churches.length} Lakewood churches, one morning</h2>
+			<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2"
+				>{churches.length} Lakewood churches, one morning</svelte:element
+			>
 			<p class="lede">
 				Different buildings, different Sundays, different styles — setting all of that aside for one
 				morning because we love the same city. More churches are joining as the date gets closer.

@@ -32,7 +32,19 @@
 	to = "/volunteer"
 	status = 301
 
+# /faq is a real page now, so it needs no redirect. These cover wording people
+# guess at or that appeared in earlier printed material.
 [[redirects]]
-	from = "/faq"
-	to = "/#faq"
-	status = 302
+	from = "/questions"
+	to = "/faq"
+	status = 301
+
+[[redirects]]
+	from = "/plan-your-visit"
+	to = "/visit"
+	status = 301
+
+[[redirects]]
+	from = "/expect"
+	to = "/what-to-expect"
+	status = 301

@@ -3,8 +3,13 @@ import type { RequestHandler } from './$types';
 
 const pages = [
 	{ path: '/', priority: '1.0', changefreq: 'weekly' },
-	{ path: '/volunteer', priority: '0.8', changefreq: 'monthly' },
-	{ path: '/share', priority: '0.5', changefreq: 'monthly' }
+	{ path: '/visit', priority: '0.9', changefreq: 'monthly' },
+	{ path: '/what-to-expect', priority: '0.9', changefreq: 'monthly' },
+	{ path: '/faq', priority: '0.8', changefreq: 'monthly' },
+	{ path: '/churches', priority: '0.8', changefreq: 'monthly' },
+	{ path: '/volunteer', priority: '0.7', changefreq: 'monthly' },
+	{ path: '/contact', priority: '0.5', changefreq: 'monthly' }
+	// /share is intentionally absent — it is for participating churches, not guests.
 ];
 
 export const GET: RequestHandler = async () => {

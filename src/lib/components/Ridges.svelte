@@ -1,10 +1,11 @@
 <script lang="ts">
 	/**
-	 * Foothill silhouettes used to close out a section. Lakewood sits right up
-	 * against these, so they read as "here" without being a literal photograph.
+	 * The divider between two sections: foothill silhouettes that hand the page
+	 * off from one background colour to the next. Lakewood sits right up against
+	 * these, so they read as "here" without being a literal photograph.
 	 */
 	let {
-		/** Color of the section that comes next — the front ridge fills into it. */
+		/** Colour of the section that comes next — the front ridge fills into it. */
 		into = 'var(--sand)',
 		flip = false
 	}: { into?: string; flip?: boolean } = $props();
@@ -18,21 +19,24 @@
 	role="presentation"
 	aria-hidden="true"
 >
+	<!--
+		Every ridge runs off both edges and then closes down to the bottom
+		corners, so the shapes look like they continue past the page rather than
+		being sliced off. The front ridge is filled with the next section's
+		colour and covers the full bottom edge, which is what makes this read as
+		a handover between two sections instead of a band sitting on top of one.
+	-->
 	<path
-		d="M0 96c120-46 210-58 320-24s186 62 300 30 214-72 340-52 268 68 350 58 130-26 130-26v58H0z"
+		d="M0 44C190 10 350 14 520 48s350 42 530 12c150-26 280-22 390-6v86H0Z"
 		fill="var(--teal)"
-		opacity="0.14"
+		opacity="0.13"
 	/>
 	<path
-		d="M0 118c150-38 254-30 372 4s220 40 344 6 232-46 358-22 226 44 366 22v42H0z"
+		d="M0 76C210 44 395 52 585 84s370 30 550 4c135-20 235-16 305-6v58H0Z"
 		fill="var(--teal)"
-		opacity="0.22"
+		opacity="0.2"
 	/>
-	<path
-		d="M0 140h1440v-8c-140 12-250-8-370-26s-240-14-372 12-234 34-354 14S0 108 0 108z"
-		fill={into}
-	/>
-	<rect y="132" width="1440" height="8" fill={into} />
+	<path d="M0 106C240 78 440 92 640 114s380 18 560 0c120-12 195-8 240-2v28H0Z" fill={into} />
 </svg>
 
 <style>
@@ -40,6 +44,17 @@
 		display: block;
 		width: 100%;
 		height: clamp(60px, 9vw, 130px);
+
+		/*
+			The hero's glow is absolutely positioned, so without this it paints
+			over the divider and stops dead at the hero's clipped edge — which
+			looked like a hard horizontal cut straight across the page.
+		*/
+		position: relative;
+		z-index: 1;
+
+		/* Guards against a hairline seam from fractional heights. */
+		margin-bottom: -1px;
 	}
 
 	.flip {

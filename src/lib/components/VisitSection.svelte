@@ -3,12 +3,8 @@
 	import SectionHead from './SectionHead.svelte';
 	import Icon from './Icon.svelte';
 
-	/**
-	 * The map iframe is only mounted after a click. It keeps Google's cookies
-	 * and ~700KB of scripts off the page for everyone who never opens the map,
-	 * and the written directions below work with or without it.
-	 */
-	let mapLoaded = $state(false);
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="visit" class="section surface-sand">
@@ -17,31 +13,25 @@
 			eyebrow="Plan your visit"
 			title="Everything you need for Sunday morning"
 			lede="No surprises, no insider knowledge required. Here is exactly where to go, where to park, and what to expect when you walk up."
+			{level}
 		/>
 
 		<div class="grid">
 			<div class="map-col">
 				<div class="map-frame">
-					{#if mapLoaded}
-						<iframe
-							src={maps.embed}
-							title="Map showing {venue.name}, {addressLine}"
-							loading="lazy"
-							referrerpolicy="no-referrer-when-downgrade"
-							allowfullscreen
-						></iframe>
-					{:else}
-						<button type="button" class="map-placeholder" onclick={() => (mapLoaded = true)}>
-							<span class="map-grid" aria-hidden="true"></span>
-							<span class="map-pin" aria-hidden="true">
-								<Icon name="pin" size={26} />
-							</span>
-							<span class="map-cta">
-								<span class="map-cta-title">Show the map</span>
-								<span class="map-cta-sub">Loads Google Maps</span>
-							</span>
-						</button>
-					{/if}
+					<!--
+						`loading="lazy"` still needs no interaction — it only holds the
+						request back while the frame is well below the viewport, which
+						helps on phones. The written directions underneath stand on
+						their own if the embed is ever blocked.
+					-->
+					<iframe
+						src={maps.embed}
+						title="Map showing {venue.name}, {addressLine}"
+						loading="lazy"
+						referrerpolicy="no-referrer-when-downgrade"
+						allowfullscreen
+					></iframe>
 				</div>
 
 				<div class="address-bar">
@@ -96,8 +86,10 @@
 					<span class="detail-icon"><Icon name="calendar" /></span>
 					<div>
 						<h3 class="h3">Don’t forget</h3>
+						<!-- timeLabel already ends in a period ("10:00 a.m."), so it is
+						     separated with a middot rather than a second full stop. -->
 						<p>
-							{event.dateLabel} at {event.timeLabel}. {event.durationLabel}. {event.cost}
+							{event.dateLabel} at {event.timeLabel} · {event.durationLabel}. {event.cost}
 						</p>
 						<a class="inline-link" href="/event.ics" download>
 							Add to your calendar
@@ -137,64 +129,6 @@
 		width: 100%;
 		height: 100%;
 		border: 0;
-	}
-
-	.map-placeholder {
-		width: 100%;
-		height: 100%;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 0.85rem;
-		background: linear-gradient(150deg, #eae2d3, #dfe7e4);
-		border: 0;
-		cursor: pointer;
-		padding: 1.5rem;
-	}
-
-	/* Suggestion of streets, so the placeholder reads as a map. */
-	.map-grid {
-		position: absolute;
-		inset: 0;
-		background-image:
-			linear-gradient(var(--line-strong) 1px, transparent 1px),
-			linear-gradient(90deg, var(--line-strong) 1px, transparent 1px);
-		background-size: 46px 46px;
-		opacity: 0.45;
-	}
-
-	.map-pin {
-		position: relative;
-		display: grid;
-		place-items: center;
-		width: 3.25rem;
-		height: 3.25rem;
-		border-radius: 50%;
-		background: var(--clay);
-		color: #fff;
-		box-shadow: 0 6px 18px rgb(194 90 60 / 0.35);
-	}
-
-	.map-cta {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.15rem;
-	}
-
-	.map-cta-title {
-		font-family: var(--font-display);
-		font-size: 1.1875rem;
-		font-weight: 600;
-		font-variation-settings: 'opsz' 24;
-	}
-
-	.map-cta-sub {
-		font-size: 0.875rem;
-		color: var(--ink-soft);
 	}
 
 	.address-bar {

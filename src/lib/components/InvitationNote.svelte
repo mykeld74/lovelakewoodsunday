@@ -16,6 +16,10 @@
 		const motionOk = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 		if (!motionOk || typeof IntersectionObserver !== 'function') return;
 
+		// Where scroll-driven animations exist, the stylesheet ties the reveal
+		// directly to scroll position and this fallback stays out of the way.
+		if (CSS.supports('animation-timeline', 'view()')) return;
+
 		armed = true;
 
 		const observer = new IntersectionObserver(
@@ -94,17 +98,67 @@
 		the reveal is guaranteed to follow — so with no JS, a failed observer, or
 		reduced motion, the text simply reads as normal.
 	*/
-	.statement span {
+	/* Scoped to the animated lines so line one never carries a stray delay. */
+	.statement span:nth-child(n + 2) {
 		transition:
 			opacity 0.7s ease,
 			transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-		transition-delay: calc(var(--i) * 130ms);
+		/* --i counts from 0, and line one never animates, so line two leads. */
+		transition-delay: calc((var(--i) - 1) * 130ms);
 	}
 
-	.armed .statement span {
+	/*
+		Line one is deliberately left out of every reveal. "You are invited." is
+		the sentence this whole page exists to say, so it is simply there the
+		moment it is on screen — and the two lines after it land against it.
+	*/
+	.armed .statement span:nth-child(n + 2) {
 		opacity: 0;
 		transform: translateY(0.5rem);
 		transition: none;
+	}
+
+	/*
+		Scroll-driven reveal for lines two and three: they are tied to scroll
+		position rather than played on a timer, so they arrive as the reader
+		brings them up the screen — and roll back if they scroll away. Line one
+		is excluded entirely and shows as soon as it is on screen.
+
+		`cover` rather than `entry`: entry ends the moment the line is fully on
+		screen, which on a phone is about 100px of scrolling and reads as a
+		twitch. `cover` runs the whole time the line crosses the viewport, so the
+		reveal has room to breathe. Each line is its own subject, so they are
+		already offset by their position on the page; the ranges below just widen
+		that into a deliberate cascade.
+
+		Both guards matter. Without `@supports`, a browser that ignores
+		`animation-timeline` would still honour the keyframe's `opacity: 0` and
+		hide the most important words on the page — those browsers use the
+		observer-driven reveal in the script above instead. And if the timeline
+		is ever inactive, the animation contributes nothing and the lines simply
+		render as normal text, which is the right way to fail here.
+	*/
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			/* Lines two and three only — line one is never animated. */
+			.statement span:nth-child(n + 2) {
+				animation: invitation-line linear both;
+				animation-timeline: view();
+				animation-range: cover 15% cover 38%;
+				transition: none;
+			}
+
+			.statement span:nth-child(3) {
+				animation-range: cover 20% cover 43%;
+			}
+		}
+	}
+
+	@keyframes invitation-line {
+		from {
+			opacity: 0;
+			transform: translateY(0.6rem);
+		}
 	}
 
 	.statement span:nth-child(2) {

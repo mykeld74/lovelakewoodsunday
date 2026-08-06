@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Wordmark from './Wordmark.svelte';
 
 	const links = [
-		{ href: '/#visit', label: 'Plan your visit' },
-		{ href: '/#expect', label: 'What to expect' },
-		{ href: '/#churches', label: 'Churches' },
+		{ href: '/visit', label: 'Plan your visit' },
+		{ href: '/what-to-expect', label: 'What to expect' },
+		{ href: '/churches', label: 'Churches' },
 		{ href: '/volunteer', label: 'Volunteer' },
-		{ href: '/#faq', label: 'Questions' }
+		{ href: '/faq', label: 'Questions' }
 	];
 
 	let open = $state(false);
@@ -19,6 +20,9 @@
 	function close() {
 		open = false;
 	}
+
+	/** Marks the section a guest is currently in, now that these are real pages. */
+	const isCurrent = (href: string) => page.url.pathname === href;
 </script>
 
 <svelte:window onscroll={onScroll} />
@@ -31,7 +35,9 @@
 
 		<nav class="desktop-nav" aria-label="Main">
 			{#each links as link (link.href)}
-				<a href={link.href}>{link.label}</a>
+				<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+					{link.label}
+				</a>
 			{/each}
 		</nav>
 
@@ -61,7 +67,13 @@
 	<nav id="mobile-nav" class="mobile-nav" aria-label="Main" hidden={!open}>
 		<div class="container mobile-inner">
 			{#each links as link (link.href)}
-				<a href={link.href} onclick={close}>{link.label}</a>
+				<a
+					href={link.href}
+					onclick={close}
+					aria-current={isCurrent(link.href) ? 'page' : undefined}
+				>
+					{link.label}
+				</a>
 			{/each}
 			<a href="/#invite" class="btn invite-mobile" onclick={close}>Invite a friend</a>
 		</div>
@@ -119,6 +131,11 @@
 	}
 
 	.desktop-nav a:hover {
+		color: var(--ink);
+		border-bottom-color: var(--amber);
+	}
+
+	.desktop-nav a[aria-current='page'] {
 		color: var(--ink);
 		border-bottom-color: var(--amber);
 	}
@@ -193,6 +210,10 @@
 
 	.mobile-nav a:last-child {
 		border-bottom: none;
+	}
+
+	.mobile-nav a[aria-current='page'] {
+		color: var(--amber-deep);
 	}
 
 	.invite-mobile {

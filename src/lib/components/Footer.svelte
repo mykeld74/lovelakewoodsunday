@@ -19,10 +19,10 @@
 				<div class="col">
 					<h2>The morning</h2>
 					<ul>
-						<li><a href="/#visit">Plan your visit</a></li>
-						<li><a href="/#expect">What to expect</a></li>
-						<li><a href="/#kids">Kids &amp; what to wear</a></li>
-						<li><a href="/#faq">Questions</a></li>
+						<li><a href="/visit">Plan your visit</a></li>
+						<li><a href="/what-to-expect">What to expect</a></li>
+						<li><a href="/churches">The churches</a></li>
+						<li><a href="/faq">Questions</a></li>
 					</ul>
 				</div>
 
@@ -32,7 +32,7 @@
 						<li><a href="/volunteer">Serve at the event</a></li>
 						<li><a href="/#invite">Invite someone</a></li>
 						<li><a href="/share">Share kit for churches</a></li>
-						<li><a href="/#contact">Ask a question</a></li>
+						<li><a href="/contact">Ask a question</a></li>
 					</ul>
 				</div>
 
@@ -66,7 +66,7 @@
 		<div class="bottom">
 			<p>&copy; {new Date().getFullYear()} {site.name}</p>
 			<p>
-				Questions? <a href="/#contact">Send us a note</a> — a real person will get back to you.
+				Questions? <a href="/contact">Send us a note</a> — a real person will get back to you.
 			</p>
 		</div>
 	</div>

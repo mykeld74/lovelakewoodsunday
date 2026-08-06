@@ -14,7 +14,7 @@ import {
 } from '$lib/server/forms';
 
 export const actions: Actions = {
-	contact: async ({ request }) => {
+	default: async ({ request }) => {
 		const data = await request.formData();
 
 		if (looksAutomated(data)) return silentSuccess();

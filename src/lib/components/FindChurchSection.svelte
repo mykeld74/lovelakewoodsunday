@@ -2,13 +2,18 @@
 	import { churches } from '$lib/data/churches';
 	import ChurchLogo from './ChurchLogo.svelte';
 	import Icon from './Icon.svelte';
+
+	/** 1 when this section leads its own page, so each page has one <h1>. */
+	let { level = 2 }: { level?: 1 | 2 } = $props();
 </script>
 
 <section id="find-a-church" class="section surface-deep">
 	<div class="container">
 		<div class="head">
 			<p class="eyebrow">After Sunday</p>
-			<h2 class="h2">Looking for a church to call home?</h2>
+			<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2"
+				>Looking for a church to call home?</svelte:element
+			>
 			<p class="lede">
 				Love Lakewood Sunday is one morning. But we hope it helps you find a community where you can
 				keep growing, keep asking questions, build real relationships, and serve this city. Every

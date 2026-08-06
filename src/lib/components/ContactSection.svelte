@@ -9,7 +9,11 @@
 		values?: Record<string, string>;
 	} | null;
 
-	let { form }: { form?: ContactResult } = $props();
+	let {
+		form,
+		/** 1 when this section leads its own page, so each page has one <h1>. */
+		level = 2
+	}: { form?: ContactResult; level?: 1 | 2 } = $props();
 
 	let submitting = $state(false);
 
@@ -35,7 +39,9 @@
 		<div class="layout">
 			<div class="intro">
 				<p class="eyebrow">Contact</p>
-				<h2 class="h2">Still have a question?</h2>
+				<svelte:element this={level === 1 ? 'h1' : 'h2'} class="h2">
+					Still have a question?
+				</svelte:element>
 				<p class="lede">
 					Send it over. A real person from one of the participating churches will get back to you —
 					usually within a day or two.
@@ -70,7 +76,6 @@
 				{:else}
 					<form
 						method="POST"
-						action="/?/contact"
 						use:enhance={() => {
 							submitting = true;
 							return async ({ update }) => {

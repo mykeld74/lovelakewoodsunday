@@ -34,7 +34,7 @@
 			</p>
 
 			<div class="btn-row cta">
-				<a href="#visit" class="btn btn-lg">Plan your visit</a>
+				<a href="/visit" class="btn btn-lg">Plan your visit</a>
 				<a href="#invite" class="btn btn-lg btn-outline">Invite someone</a>
 			</div>
 		</div>

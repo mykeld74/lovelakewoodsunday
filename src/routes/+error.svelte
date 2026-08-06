@@ -31,7 +31,7 @@
 				Go to the event page
 				<Icon name="arrow" size={18} />
 			</a>
-			<a class="btn btn-lg btn-outline" href="/#faq">Read the FAQ</a>
+			<a class="btn btn-lg btn-outline" href="/faq">Read the FAQ</a>
 		</div>
 	</div>
 </section>
