@@ -141,7 +141,6 @@
 		height: 3.6rem;
 		color: var(--clay);
 		margin: 0.55rem 0 -0.65rem -0.95rem;
-		transform: rotate(-10deg);
 		animation: heart-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
@@ -325,6 +324,7 @@
 		width: 1.35rem;
 		height: 1.15rem;
 		color: var(--clay);
+		transform: rotate(-10deg);
 	}
 
 	.sticky-heart svg {
@@ -346,11 +346,11 @@
 	@keyframes heart-in {
 		from {
 			opacity: 0;
-			transform: rotate(-10deg) scale(0.7);
+			transform: scale(0.7);
 		}
 		to {
 			opacity: 1;
-			transform: rotate(-10deg) scale(1);
+			transform: scale(1);
 		}
 	}
 

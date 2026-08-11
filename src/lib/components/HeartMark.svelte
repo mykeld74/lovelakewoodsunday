@@ -15,7 +15,7 @@
 	fill="none"
 	role="presentation"
 	aria-hidden="true"
-	class={className}
+	class={['mark', className]}
 >
 	<path
 		d="M24 8.5v-5M24 44.5v-5M8.5 24h-5M44.5 24h-5M12.2 12.2l-3.5-3.5M39.3 39.3l-3.5-3.5M35.8 12.2l3.5-3.5M12.2 35.8l-3.5 3.5"
@@ -28,3 +28,10 @@
 		fill="currentColor"
 	/>
 </svg>
+
+<style>
+	.mark {
+		transform: rotate(-10deg);
+		transform-origin: center;
+	}
+</style>

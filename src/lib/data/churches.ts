@@ -1,3 +1,8 @@
+import graceFellowshipLogo from '$lib/assets/churchLogos/GraceFellowshipLogo.webp';
+import lakewoodVineyardLogo from '$lib/assets/churchLogos/LakewoodVineyardLogo.webp';
+import bridgeChurchLogo from '$lib/assets/churchLogos/BridgeChurchLogo.webp';
+import westwoodsCcLogo from '$lib/assets/churchLogos/WestwoodsCCLogo.webp';
+
 export type Church = {
 	id: string;
 	/** Full name as the church itself writes it. */
@@ -5,8 +10,8 @@ export type Church = {
 	/** Initials used for the placeholder tile until a logo file is supplied. */
 	initials: string;
 	/**
-	 * Logo file in `static/churches/`. Transparent PNG or SVG, roughly 3:1,
-	 * dark artwork on a transparent background works best.
+	 * Resolved URL from `$lib/assets/churchLogos/`. Transparent WebP/PNG/SVG,
+	 * roughly 3:1, dark artwork on a transparent background works best.
 	 */
 	logo?: string;
 	url?: string;
@@ -35,6 +40,7 @@ export const churches: Church[] = [
 		id: 'grace-fellowship',
 		name: 'Grace Fellowship',
 		initials: 'GF',
+		logo: graceFellowshipLogo,
 		url: 'https://www.gfol.org',
 		street: '9210 W 2nd Ave',
 		city: 'Lakewood, CO 80226',
@@ -44,6 +50,7 @@ export const churches: Church[] = [
 		id: 'lakewood-vineyard',
 		name: 'Lakewood Vineyard',
 		initials: 'LV',
+		logo: lakewoodVineyardLogo,
 		url: 'https://lakewoodvineyard.org',
 		street: '6800 W Hampden Ave',
 		city: 'Lakewood, CO 80227',
@@ -53,13 +60,14 @@ export const churches: Church[] = [
 		id: 'siete-pilares',
 		name: 'Siete Pilares',
 		initials: 'SP',
-		// TODO: confirm website and address with the congregation.
+		// TODO: confirm website, address, and logo with the congregation.
 		language: 'Servicios en español'
 	},
 	{
 		id: 'the-bridge-at-bear-creek',
 		name: 'The Bridge at Bear Creek',
 		initials: 'BC',
+		logo: bridgeChurchLogo,
 		url: 'https://bridgebc.org',
 		street: '3101 S Kipling St',
 		city: 'Lakewood, CO 80227',
@@ -69,6 +77,7 @@ export const churches: Church[] = [
 		id: 'westwoods',
 		name: 'Westwoods Community Church',
 		initials: 'WW',
+		logo: westwoodsCcLogo,
 		url: 'https://westwoodscc.org',
 		street: '7700 W Woodard Dr',
 		city: 'Lakewood, CO 80227'
