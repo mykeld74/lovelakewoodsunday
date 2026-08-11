@@ -2,12 +2,24 @@
 	import { enhance } from '$app/forms';
 	import Seo from '$lib/components/Seo.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+	import PhoneInput from '$lib/components/PhoneInput.svelte';
+	import FormError from '$lib/components/FormError.svelte';
+	import { volunteerFromFormData, validateVolunteer } from '$lib/forms/validation';
+	import { focusFirstError } from '$lib/forms/focus';
 	import { volunteerRoles } from '$lib/data/volunteer';
 	import { event, venue, externalForms } from '$lib/config/site';
 
 	let { form } = $props();
 
 	let submitting = $state(false);
+	let clientErrors = $state<Record<string, string>>({});
+
+	const fieldIds = {
+		name: 'vol-name',
+		email: 'vol-email',
+		phone: 'vol-phone',
+		roles: 'vol-roles'
+	};
 
 	/*
 		Deliberately set after mount rather than with $derived: this has to be the
@@ -22,9 +34,16 @@
 		startedAt = String(Date.now());
 	});
 
-	const errors = $derived((form?.errors ?? {}) as Record<string, string>);
+	const errors = $derived({ ...clientErrors, ...((form?.errors ?? {}) as Record<string, string>) });
 	const values = $derived((form?.values ?? {}) as Record<string, string | string[]>);
 	const chosen = $derived(new Set((values.roles as string[]) ?? []));
+
+	function clearError(field: string) {
+		if (!clientErrors[field]) return;
+		const next = { ...clientErrors };
+		delete next[field];
+		clientErrors = next;
+	}
 </script>
 
 <Seo
@@ -75,11 +94,24 @@
 		{:else}
 			<form
 				method="POST"
-				use:enhance={() => {
+				novalidate
+				use:enhance={({ formData, cancel }) => {
 					submitting = true;
-					return async ({ update }) => {
-						await update({ reset: true });
+					const validationErrors = validateVolunteer(volunteerFromFormData(formData));
+					if (Object.keys(validationErrors).length > 0) {
+						clientErrors = validationErrors;
 						submitting = false;
+						focusFirstError(validationErrors, fieldIds);
+						cancel();
+						return;
+					}
+					clientErrors = {};
+					return async ({ update, result }) => {
+						await update({ reset: result.type === 'success' });
+						submitting = false;
+						if (result.type === 'failure' && result.data?.errors) {
+							focusFirstError(result.data.errors as Record<string, string>, fieldIds);
+						}
 					};
 				}}
 			>
@@ -89,20 +121,25 @@
 				</div>
 				<input type="hidden" name="started_at" value={startedAt} />
 
-				<fieldset class="roles-fieldset">
+				<fieldset id="vol-roles" class="roles-fieldset" class:has-error={!!errors.roles}>
 					<legend class="fieldset-legend">
 						Where would you like to help?
+						<span class="required" aria-hidden="true">*</span>
 						<span class="hint">Choose as many as you like.</span>
 					</legend>
 
-					{#if errors.roles}
-						<p class="error-text" role="alert">{errors.roles}</p>
-					{/if}
+					<FormError message={errors.roles} />
 
 					<div class="roles">
 						{#each volunteerRoles as role (role.id)}
 							<label class="role">
-								<input type="checkbox" name="roles" value={role.id} checked={chosen.has(role.id)} />
+								<input
+									type="checkbox"
+									name="roles"
+									value={role.id}
+									checked={chosen.has(role.id)}
+									onchange={() => clearError('roles')}
+								/>
 								<span class="role-body">
 									<span class="role-name">{role.name}</span>
 									<span class="role-desc">{role.description}</span>
@@ -117,49 +154,51 @@
 
 					<div class="grid">
 						<div class="field">
-							<label for="vol-name">Your name</label>
+							<label for="vol-name">
+								Your name <span class="required" aria-hidden="true">*</span>
+							</label>
 							<input
 								id="vol-name"
 								name="name"
 								class="input"
 								autocomplete="name"
-								required
+								aria-required="true"
 								value={values.name ?? ''}
 								aria-invalid={errors.name ? 'true' : undefined}
 								aria-describedby={errors.name ? 'vol-name-error' : undefined}
+								oninput={() => clearError('name')}
 							/>
-							{#if errors.name}<p class="error-text" id="vol-name-error">{errors.name}</p>{/if}
+							<FormError id="vol-name-error" message={errors.name} />
 						</div>
 
 						<div class="field">
-							<label for="vol-email">Email</label>
+							<label for="vol-email">
+								Email <span class="required" aria-hidden="true">*</span>
+							</label>
 							<input
 								id="vol-email"
 								name="email"
 								type="email"
 								class="input"
 								autocomplete="email"
-								required
+								aria-required="true"
 								value={values.email ?? ''}
 								aria-invalid={errors.email ? 'true' : undefined}
 								aria-describedby={errors.email ? 'vol-email-error' : undefined}
+								oninput={() => clearError('email')}
 							/>
-							{#if errors.email}<p class="error-text" id="vol-email-error">{errors.email}</p>{/if}
+							<FormError id="vol-email-error" message={errors.email} />
 						</div>
 
 						<div class="field">
 							<label for="vol-phone">Phone <span class="hint">(optional)</span></label>
-							<input
+							<PhoneInput
 								id="vol-phone"
-								name="phone"
-								type="tel"
-								class="input"
-								autocomplete="tel"
-								value={values.phone ?? ''}
-								aria-invalid={errors.phone ? 'true' : undefined}
-								aria-describedby={errors.phone ? 'vol-phone-error' : undefined}
+								value={typeof values.phone === 'string' ? values.phone : ''}
+								invalid={!!errors.phone}
+								describedBy={errors.phone ? 'vol-phone-error' : undefined}
 							/>
-							{#if errors.phone}<p class="error-text" id="vol-phone-error">{errors.phone}</p>{/if}
+							<FormError id="vol-phone-error" message={errors.phone} />
 						</div>
 
 						<div class="field">
@@ -190,9 +229,7 @@
 					</div>
 				</fieldset>
 
-				{#if errors.form}
-					<p class="error-text" role="alert">{errors.form}</p>
-				{/if}
+				<FormError message={errors.form} />
 
 				<button type="submit" class="btn btn-lg submit" disabled={submitting}>
 					{submitting ? 'Signing you up…' : 'Count me in'}
@@ -276,6 +313,12 @@
 		font-size: 0.875rem;
 		font-weight: 400;
 		color: var(--ink-faint);
+	}
+
+	.roles-fieldset.has-error .roles {
+		outline: 2px solid var(--clay);
+		outline-offset: 4px;
+		border-radius: var(--radius);
 	}
 
 	.roles {

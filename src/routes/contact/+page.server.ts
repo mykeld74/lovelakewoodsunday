@@ -2,16 +2,8 @@ import type { Actions } from './$types';
 import { db } from '$lib/server/db';
 import { contactMessage } from '$lib/server/db/schema';
 import { notify } from '$lib/server/notify';
-import {
-	cleanText,
-	cleanMultiline,
-	isEmail,
-	isPhone,
-	looksAutomated,
-	silentSuccess,
-	invalid,
-	type FieldErrors
-} from '$lib/server/forms';
+import { contactFromFormData, validateContact } from '$lib/forms/validation';
+import { looksAutomated, silentSuccess, invalid } from '$lib/server/forms';
 
 export const actions: Actions = {
 	default: async ({ request }) => {
@@ -19,22 +11,12 @@ export const actions: Actions = {
 
 		if (looksAutomated(data)) return silentSuccess();
 
-		const name = cleanText(data.get('name'), 120);
-		const email = cleanText(data.get('email'), 254);
-		const phone = cleanText(data.get('phone'), 40);
-		const message = cleanMultiline(data.get('message'), 4000);
-
-		const values = { name, email, phone, message };
-		const errors: FieldErrors = {};
-
-		if (!name) errors.name = 'Please tell us your name.';
-		if (!email) errors.email = 'We need an email address to reply to you.';
-		else if (!isEmail(email)) errors.email = 'That email address doesn’t look quite right.';
-		if (phone && !isPhone(phone)) errors.phone = 'That phone number doesn’t look quite right.';
-		if (!message) errors.message = 'Let us know what you’d like to ask.';
-		else if (message.length < 5) errors.message = 'Could you add a little more detail?';
+		const values = contactFromFormData(data);
+		const errors = validateContact(values);
 
 		if (Object.keys(errors).length > 0) return invalid(errors, values);
+
+		const { name, email, phone, message } = values;
 
 		try {
 			await db.insert(contactMessage).values({

@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { externalForms } from '$lib/config/site';
+	import { contactFromFormData, validateContact } from '$lib/forms/validation';
+	import { focusFirstError } from '$lib/forms/focus';
 	import Icon from './Icon.svelte';
+	import PhoneInput from './PhoneInput.svelte';
+	import FormError from './FormError.svelte';
 
 	type ContactResult = {
 		success?: boolean;
@@ -16,6 +20,14 @@
 	}: { form?: ContactResult; level?: 1 | 2 } = $props();
 
 	let submitting = $state(false);
+	let clientErrors = $state<Record<string, string>>({});
+
+	const fieldIds = {
+		name: 'contact-name',
+		email: 'contact-email',
+		phone: 'contact-phone',
+		message: 'contact-message'
+	};
 
 	/*
 		Set after mount, not with $derived: this must be when *this visitor's*
@@ -30,8 +42,15 @@
 		startedAt = String(Date.now());
 	});
 
-	const errors = $derived(form?.errors ?? {});
+	const errors = $derived({ ...clientErrors, ...(form?.errors ?? {}) });
 	const values = $derived(form?.values ?? {});
+
+	function clearError(field: string) {
+		if (!clientErrors[field]) return;
+		const next = { ...clientErrors };
+		delete next[field];
+		clientErrors = next;
+	}
 </script>
 
 <section id="contact" class="section surface-sand">
@@ -76,11 +95,27 @@
 				{:else}
 					<form
 						method="POST"
-						use:enhance={() => {
+						novalidate
+						use:enhance={({ formData, cancel }) => {
 							submitting = true;
-							return async ({ update }) => {
-								await update({ reset: true });
+							const validationErrors = validateContact(contactFromFormData(formData));
+							if (Object.keys(validationErrors).length > 0) {
+								clientErrors = validationErrors;
 								submitting = false;
+								focusFirstError(validationErrors, fieldIds);
+								cancel();
+								return;
+							}
+							clientErrors = {};
+							return async ({ update, result }) => {
+								await update({ reset: result.type === 'success' });
+								submitting = false;
+								if (result.type === 'failure' && result.data?.errors) {
+									focusFirstError(
+										result.data.errors as Record<string, string>,
+										fieldIds
+									);
+								}
 							};
 						}}
 					>
@@ -97,80 +132,75 @@
 						<input type="hidden" name="started_at" value={startedAt} />
 
 						<div class="field">
-							<label for="contact-name">Your name</label>
+							<label for="contact-name">
+								Your name <span class="required" aria-hidden="true">*</span>
+							</label>
 							<input
 								id="contact-name"
 								name="name"
 								class="input"
 								autocomplete="name"
-								required
+								aria-required="true"
 								value={values.name ?? ''}
 								aria-invalid={errors.name ? 'true' : undefined}
 								aria-describedby={errors.name ? 'contact-name-error' : undefined}
+								oninput={() => clearError('name')}
 							/>
-							{#if errors.name}
-								<p class="error-text" id="contact-name-error">{errors.name}</p>
-							{/if}
+							<FormError id="contact-name-error" message={errors.name} />
 						</div>
 
 						<div class="row">
 							<div class="field">
-								<label for="contact-email">Email</label>
+								<label for="contact-email">
+									Email <span class="required" aria-hidden="true">*</span>
+								</label>
 								<input
 									id="contact-email"
 									name="email"
 									type="email"
 									class="input"
 									autocomplete="email"
-									required
+									aria-required="true"
 									value={values.email ?? ''}
 									aria-invalid={errors.email ? 'true' : undefined}
 									aria-describedby={errors.email ? 'contact-email-error' : undefined}
+									oninput={() => clearError('email')}
 								/>
-								{#if errors.email}
-									<p class="error-text" id="contact-email-error">{errors.email}</p>
-								{/if}
+								<FormError id="contact-email-error" message={errors.email} />
 							</div>
 
 							<div class="field">
 								<label for="contact-phone">
 									Phone <span class="hint">(optional)</span>
 								</label>
-								<input
+								<PhoneInput
 									id="contact-phone"
-									name="phone"
-									type="tel"
-									class="input"
-									autocomplete="tel"
 									value={values.phone ?? ''}
-									aria-invalid={errors.phone ? 'true' : undefined}
-									aria-describedby={errors.phone ? 'contact-phone-error' : undefined}
+									invalid={!!errors.phone}
+									describedBy={errors.phone ? 'contact-phone-error' : undefined}
 								/>
-								{#if errors.phone}
-									<p class="error-text" id="contact-phone-error">{errors.phone}</p>
-								{/if}
+								<FormError id="contact-phone-error" message={errors.phone} />
 							</div>
 						</div>
 
 						<div class="field">
-							<label for="contact-message">Your question or message</label>
+							<label for="contact-message">
+								Your question or message <span class="required" aria-hidden="true">*</span>
+							</label>
 							<textarea
 								id="contact-message"
 								name="message"
 								class="textarea"
-								required
+								aria-required="true"
 								aria-invalid={errors.message ? 'true' : undefined}
 								aria-describedby={errors.message ? 'contact-message-error' : undefined}
+								oninput={() => clearError('message')}
 								>{values.message ?? ''}</textarea
 							>
-							{#if errors.message}
-								<p class="error-text" id="contact-message-error">{errors.message}</p>
-							{/if}
+							<FormError id="contact-message-error" message={errors.message} />
 						</div>
 
-						{#if errors.form}
-							<p class="error-text" role="alert">{errors.form}</p>
-						{/if}
+						<FormError message={errors.form} />
 
 						<button type="submit" class="btn btn-lg submit" disabled={submitting}>
 							{submitting ? 'Sending…' : 'Send your message'}
