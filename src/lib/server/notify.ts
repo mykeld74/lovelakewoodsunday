@@ -1,12 +1,15 @@
 import { env } from '$env/dynamic/private';
+import { site } from '$lib/config/site';
 
 /**
  * Every submission is stored in Postgres, so nothing is ever lost. This module
- * is the optional nudge on top of that: if the team sets NOTIFY_EMAIL and a
- * RESEND_API_KEY, new volunteers and questions land in an inbox too.
+ * is the inbox nudge on top of that: with a Resend API key configured, new
+ * volunteers and questions are emailed out as well.
  *
- * With neither set it logs and moves on, so local development and a fresh
- * deploy both work without any extra configuration.
+ * Env:
+ *   RESEND_API_KEY     — required to send
+ *   RESEND_FROM_EMAIL  — verified sender, e.g. `Love Lakewood Sunday <noreply@…>`
+ *   NOTIFY_EMAIL       — comma-separated recipients (defaults to site.contactEmail)
  */
 export type Notification = {
 	subject: string;
@@ -15,12 +18,19 @@ export type Notification = {
 };
 
 export async function notify({ subject, lines, replyTo }: Notification): Promise<void> {
-	const to = env.NOTIFY_EMAIL;
-	const apiKey = env.RESEND_API_KEY;
-	const from = env.NOTIFY_FROM ?? 'Love Lakewood Sunday <onboarding@resend.dev>';
+	const apiKey = env.RESEND_API_KEY?.trim();
+	const from = env.RESEND_FROM_EMAIL?.trim() || env.NOTIFY_FROM?.trim();
+	const to = (env.NOTIFY_EMAIL?.trim() || site.contactEmail)
+		.split(',')
+		.map((address) => address.trim())
+		.filter(Boolean);
 
-	if (!to || !apiKey) {
-		console.info(`[notify] ${subject}`, Object.fromEntries(lines));
+	if (!apiKey || !from || to.length === 0) {
+		console.info(
+			`[notify] skipped (missing ${[!apiKey && 'RESEND_API_KEY', !from && 'RESEND_FROM_EMAIL', !to.length && 'NOTIFY_EMAIL'].filter(Boolean).join(', ')}):`,
+			subject,
+			Object.fromEntries(lines)
+		);
 		return;
 	}
 
@@ -41,7 +51,7 @@ export async function notify({ subject, lines, replyTo }: Notification): Promise
 			},
 			body: JSON.stringify({
 				from,
-				to: to.split(',').map((address) => address.trim()),
+				to,
 				subject,
 				text,
 				html,
@@ -50,12 +60,16 @@ export async function notify({ subject, lines, replyTo }: Notification): Promise
 		});
 
 		if (!response.ok) {
-			console.error('[notify] email failed', response.status, await response.text());
+			console.error('[notify] Resend failed', response.status, await response.text());
+			return;
 		}
+
+		const result = (await response.json()) as { id?: string };
+		console.info('[notify] sent', result.id ?? subject);
 	} catch (error) {
 		// A failed notification must never fail the submission — the row is
 		// already safely in the database.
-		console.error('[notify] email threw', error);
+		console.error('[notify] Resend threw', error);
 	}
 }
 

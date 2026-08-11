@@ -120,17 +120,19 @@ column — `contacted` for volunteers, `answered` for questions — so whoever w
 the list can mark people off and nobody gets contacted twice.
 
 **To also get an email on every submission** (recommended), set these environment
-variables in Netlify:
+variables in Netlify (same names as local `.env`):
 
 ```
-NOTIFY_EMAIL=whoever@example.com
 RESEND_API_KEY=re_xxxxxxxx
-NOTIFY_FROM=Love Lakewood Sunday <hello@lovelakewoodsunday.org>
+RESEND_FROM_EMAIL=Love Lakewood Sunday <noreply@lovelakewoodsunday.org>
+NOTIFY_EMAIL=hello@lovelakewoodsunday.org
 ```
 
-`NOTIFY_EMAIL` accepts a comma-separated list. Without these, submissions are still
-saved and are simply logged to the server. Replies go straight to the person who
-wrote in.
+Verify `lovelakewoodsunday.org` in Resend and send from that domain.
+`NOTIFY_EMAIL` accepts a comma-separated list; if unset it falls back to
+`site.contactEmail`. Without `RESEND_API_KEY` / `RESEND_FROM_EMAIL`, submissions
+are still saved to Postgres and logged on the server. Reply-To is the person who
+wrote in, so you can answer from your inbox.
 
 ### Spam protection
 
