@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SunMark from './SunMark.svelte';
+	import HeartMark from './HeartMark.svelte';
 
 	let { size = 'md', tagline = false }: { size?: 'sm' | 'md' | 'lg'; tagline?: boolean } = $props();
 
@@ -7,7 +7,9 @@
 </script>
 
 <span class="wordmark {size}">
-	<SunMark size={markSize} />
+	<span class="mark">
+		<HeartMark size={markSize} />
+	</span>
 	<span class="text">
 		<span class="name">Love&nbsp;Lakewood&nbsp;Sunday</span>
 		{#if tagline}
@@ -23,6 +25,13 @@
 		gap: 0.6rem;
 		color: inherit;
 		text-decoration: none;
+	}
+
+	.mark {
+		display: grid;
+		place-items: center;
+		flex-shrink: 0;
+		color: var(--clay);
 	}
 
 	.text {

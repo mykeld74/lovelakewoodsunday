@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { event, venue, site } from '$lib/config/site';
 	import Ridges from './Ridges.svelte';
+	import HeartMark from './HeartMark.svelte';
 	import worship from '$lib/assets/hero/worship.webp';
 	import prayer from '$lib/assets/hero/prayer.webp';
 	import hug from '$lib/assets/hero/hug.webp';
@@ -20,18 +21,7 @@
 	<div class="stage">
 		<div class="copy">
 			<span class="heart" aria-hidden="true">
-				<svg viewBox="0 0 48 48" fill="none">
-					<path
-						d="M24 8.5v-5M24 44.5v-5M8.5 24h-5M44.5 24h-5M12.2 12.2l-3.5-3.5M39.3 39.3l-3.5-3.5M35.8 12.2l3.5-3.5M12.2 35.8l-3.5 3.5"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-					/>
-					<path
-						d="M24 36s-9.5-5.8-9.5-12a5.3 5.3 0 0 1 9.5-3.3A5.3 5.3 0 0 1 33.5 24C33.5 30.2 24 36 24 36Z"
-						fill="currentColor"
-					/>
-				</svg>
+				<HeartMark size={58} />
 			</span>
 
 			<h1 class="title">
@@ -155,7 +145,7 @@
 		animation: heart-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	.heart svg {
+	.heart :global(svg) {
 		width: 100%;
 		height: 100%;
 	}
