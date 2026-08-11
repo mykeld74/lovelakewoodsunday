@@ -7,8 +7,12 @@
 	let {
 		/** Colour of the section that comes next — the front ridge fills into it. */
 		into = 'var(--sand)',
+		/** Farthest ridge — solid so it still reads over photography. */
+		back = '#dfdbd0',
+		/** Middle ridge. */
+		mid = '#bfbfb4',
 		flip = false
-	}: { into?: string; flip?: boolean } = $props();
+	}: { into?: string; back?: string; mid?: string; flip?: boolean } = $props();
 </script>
 
 <svg
@@ -28,13 +32,11 @@
 	-->
 	<path
 		d="M0 44C190 10 350 14 520 48s350 42 530 12c150-26 280-22 390-6v86H0Z"
-		fill="var(--teal)"
-		opacity="0.13"
+		fill={back}
 	/>
 	<path
 		d="M0 76C210 44 395 52 585 84s370 30 550 4c135-20 235-16 305-6v58H0Z"
-		fill="var(--teal)"
-		opacity="0.2"
+		fill={mid}
 	/>
 	<path d="M0 106C240 78 440 92 640 114s380 18 560 0c120-12 195-8 240-2v28H0Z" fill={into} />
 </svg>

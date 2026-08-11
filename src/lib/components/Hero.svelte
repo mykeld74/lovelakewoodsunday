@@ -1,242 +1,470 @@
 <script lang="ts">
-	import { event, venue, media } from '$lib/config/site';
+	import { event, venue, site } from '$lib/config/site';
 	import Ridges from './Ridges.svelte';
+	import worship from '$lib/assets/hero/worship.webp';
+	import prayer from '$lib/assets/hero/prayer.webp';
+	import hug from '$lib/assets/hero/hug.webp';
+	import preaching from '$lib/assets/hero/preaching.webp';
 
-	const facts = [
-		{ label: 'When', value: event.dateLabel, sub: `${event.timeLabel} · ${event.durationLabel}` },
-		{ label: 'Where', value: `${venue.name} ${venue.room}`, sub: `${venue.city}, ${venue.state}` },
-		{ label: 'Cost', value: 'Free', sub: 'No registration, no offering' }
-	];
+	const meta = [`${venue.name} Gym`, 'September 20', event.timeLabel.replace(' a.m.', ' am')];
+
+	const tiles = [
+		{ id: 'worship', src: worship },
+		{ id: 'prayer', src: prayer },
+		{ id: 'hug', src: hug },
+		{ id: 'preaching', src: preaching }
+	] as const;
 </script>
 
-<section class="hero" class:with-art={!!media.eventGraphic}>
-	<div class="glow" aria-hidden="true"></div>
-
-	<div class="container inner">
+<section class="hero">
+	<div class="stage">
 		<div class="copy">
-			<p class="kicker">
-				<span class="dot" aria-hidden="true"></span>
-				Lakewood, Colorado · {event.dateShort}
-			</p>
+			<span class="heart" aria-hidden="true">
+				<svg viewBox="0 0 48 48" fill="none">
+					<path
+						d="M24 8.5v-5M24 44.5v-5M8.5 24h-5M44.5 24h-5M12.2 12.2l-3.5-3.5M39.3 39.3l-3.5-3.5M35.8 12.2l3.5-3.5M12.2 35.8l-3.5 3.5"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+					/>
+					<path
+						d="M24 36s-9.5-5.8-9.5-12a5.3 5.3 0 0 1 9.5-3.3A5.3 5.3 0 0 1 33.5 24C33.5 30.2 24 36 24 36Z"
+						fill="currentColor"
+					/>
+				</svg>
+			</span>
 
-			<h1 class="display">Love Lakewood Sunday</h1>
+			<h1 class="title">
+				<span>Love</span>
+				<span>Lakewood</span>
+				<span class="sunday">Sunday</span>
+			</h1>
 
-			<p class="tagline">
-				<span>One Sunday.</span>
-				<span>One Church.</span>
-				<span>One City.</span>
-			</p>
+			<p class="tagline">{site.tagline}</p>
+			<p class="lede">A unified community church service for all of Lakewood.</p>
 
-			<p class="lede">
-				Lakewood churches are coming together for one unforgettable morning of worship, hope, and
-				community. Whether church is already part of your life, you haven’t attended in years, or
-				you’ve never attended at all — you are invited.
-			</p>
+			<ul class="meta">
+				{#each meta as line (line)}
+					<li>{line}</li>
+				{/each}
+			</ul>
 
-			<div class="btn-row cta">
+			<div class="cta">
 				<a href="/visit" class="btn btn-lg">Plan your visit</a>
 				<a href="#invite" class="btn btn-lg btn-outline">Invite someone</a>
 			</div>
 		</div>
 
-		{#if media.eventGraphic}
-			<div class="art">
-				<img src={media.eventGraphic} alt="Love Lakewood Sunday event graphic" />
-			</div>
-		{/if}
-	</div>
-
-	<div class="container">
-		<ul class="facts">
-			{#each facts as fact (fact.label)}
-				<li>
-					<span class="fact-label">{fact.label}</span>
-					<span class="fact-value">{fact.value}</span>
-					<span class="fact-sub">{fact.sub}</span>
-				</li>
+		<div class="collage" aria-hidden="true">
+			{#each tiles as tile (tile.id)}
+				<img
+					class={tile.id}
+					src={tile.src}
+					alt=""
+					decoding="async"
+					fetchpriority={tile.id === 'worship' ? 'high' : 'auto'}
+				/>
 			{/each}
-		</ul>
+		</div>
+
+		<aside class="sticky" aria-hidden="true">
+			<svg class="tape" viewBox="0 0 100 22" aria-hidden="true">
+				<!-- Straight top/bottom; only the short left/right ends are torn. -->
+				<path
+					d="M8 3
+						H92
+						L94.5 5.2 91.8 7.4 95.2 9.8 92.1 12.1 95 14.5 91.6 16.8 94.3 19
+						H8
+						L5.2 16.6 8.1 14.3 4.6 11.9 7.8 9.6 4.9 7.2 7.5 4.9 Z"
+				/>
+			</svg>
+			<p>Love God.<br />Love People.<br />Love Lakewood.</p>
+			<span class="sticky-heart">
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+					<path
+						d="M12 20s-7.5-4.6-7.5-9.5a4.2 4.2 0 0 1 7.5-2.6 4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z"
+					/>
+				</svg>
+			</span>
+		</aside>
 	</div>
 
-	<Ridges into="var(--cream)" />
+	<Ridges into="var(--cream)" back="#DFDBD0" mid="#BFBFB4" />
 </section>
 
 <style>
+	@font-face {
+		font-family: 'Caveat';
+		font-style: normal;
+		font-weight: 500;
+		font-display: swap;
+		src: url('/fonts/caveat-500.woff2') format('woff2');
+	}
+
+	@font-face {
+		font-family: 'Caveat';
+		font-style: normal;
+		font-weight: 600;
+		font-display: swap;
+		src: url('/fonts/caveat-600.woff2') format('woff2');
+	}
+
 	.hero {
+		/* Moss from the event graphic — a touch warmer than --deep. */
+		--hero-ink: #3f4b3d;
 		position: relative;
-		padding-top: clamp(2.5rem, 7vw, 5rem);
-		background: linear-gradient(180deg, var(--sand) 0%, var(--cream) 62%), var(--cream);
-		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		max-height: 70vh;
+		background: #f7f0e6;
+		overflow: clip;
 	}
 
-	/* Low sun coming up behind the headline. */
-	.glow {
-		position: absolute;
-		top: -34vw;
-		left: 50%;
-		width: min(120rem, 160vw);
-		aspect-ratio: 1;
-		transform: translateX(-50%);
-		background: radial-gradient(
-			circle at center,
-			rgb(251 219 164 / 0.85) 0%,
-			rgb(251 219 164 / 0.35) 34%,
-			rgb(251 219 164 / 0) 62%
-		);
-		pointer-events: none;
-	}
-
-	.inner {
+	.stage {
 		position: relative;
 		display: grid;
-		gap: clamp(2.5rem, 5vw, 4rem);
-		align-items: center;
+		gap: 0;
+		align-items: stretch;
+		flex: 1 1 auto;
+		min-height: 0;
+	}
+
+	.hero :global(.ridges) {
+		flex-shrink: 0;
+		height: clamp(56px, 7vw, 100px);
 	}
 
 	.copy {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		text-align: center;
-		gap: 1.15rem;
+		align-items: flex-start;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: clamp(1.75rem, 4vw, 2.75rem) var(--gutter);
+		padding-bottom: clamp(2rem, 4vw, 2.75rem);
 	}
 
-	.kicker {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.55rem;
-		padding: 0.4rem 0.95rem 0.4rem 0.7rem;
-		background: rgb(255 255 255 / 0.7);
-		border: 1px solid var(--line);
-		border-radius: var(--radius-pill);
-		font-size: 0.8125rem;
-		font-weight: 600;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		color: var(--ink-soft);
+	.heart {
+		display: grid;
+		place-items: center;
+		width: 3.6rem;
+		height: 3.6rem;
+		color: var(--clay);
+		margin: 0.55rem 0 -0.65rem -0.95rem;
+		transform: rotate(-10deg);
+		animation: heart-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	.dot {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: var(--amber);
-		box-shadow: 0 0 0 3px rgb(227 155 46 / 0.22);
+	.heart svg {
+		width: 100%;
+		height: 100%;
 	}
 
-	h1 {
-		max-width: 14ch;
+	.title {
+		display: flex;
+		flex-direction: column;
+		font-family: var(--font-body);
+		font-size: clamp(2.5rem, 7vw, 4.1rem);
+		font-weight: 800;
+		line-height: 0.92;
+		letter-spacing: -0.04em;
+		color: var(--hero-ink);
+		text-wrap: balance;
+		animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+	}
+
+	.sunday {
+		position: relative;
+		display: inline-block;
+		width: fit-content;
+	}
+
+	.sunday::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 8%;
+		bottom: 0.02em;
+		height: 0.12em;
+		background: var(--clay);
+		border-radius: 2px;
+		opacity: 0.9;
+		transform: rotate(-0.6deg);
+		/* Soft hand-drawn edge */
+		-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.2c8-2 16 2 24 0s16-2 24 0 16 2 24 0 16-2 24 0 16 2 24 0' stroke='%23000' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+		mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.2c8-2 16 2 24 0s16-2 24 0 16 2 24 0 16-2 24 0 16 2 24 0' stroke='%23000' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
 	}
 
 	.tagline {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.25rem 1.5rem;
-		font-family: var(--font-display);
-		font-size: clamp(1.0625rem, 2.2vw, 1.4rem);
-		font-variation-settings: 'opsz' 20;
-		font-style: italic;
-		color: var(--teal);
-	}
-
-	.tagline span {
-		position: relative;
-	}
-
-	.tagline span + span::before {
-		content: '';
-		position: absolute;
-		left: -0.85rem;
-		top: 50%;
-		width: 5px;
-		height: 5px;
-		border-radius: 50%;
-		background: var(--amber);
-		transform: translateY(-50%);
+		font-family: var(--font-body);
+		font-size: clamp(1.05rem, 2vw, 1.35rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		color: var(--hero-ink);
+		margin-top: 0.35rem;
+		animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 	}
 
 	.lede {
-		max-width: 40rem;
+		font-size: clamp(0.95rem, 1.5vw, 1.0625rem);
+		color: var(--ink-soft);
+		max-width: 28rem;
+		animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+	}
+
+	.meta {
+		list-style: none;
+		padding: 0;
+		margin: 0.35rem 0 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		font-family: var(--font-body);
+		font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		color: var(--clay);
+		animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
 	}
 
 	.cta {
-		justify-content: center;
-		margin-top: 0.6rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 0.85rem;
+		animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 	}
 
-	.art img {
-		width: 100%;
-		border-radius: var(--radius-lg);
-		box-shadow: var(--shadow-lg);
-		border: 1px solid var(--line);
-	}
-
-	.facts {
+	.collage {
 		position: relative;
-		list-style: none;
-		padding: 0;
-		margin-top: clamp(3rem, 6vw, 4.5rem);
 		display: grid;
-		gap: 1px;
-		background: var(--line);
-		border: 1px solid var(--line);
-		border-radius: var(--radius-lg);
-		overflow: hidden;
-		box-shadow: var(--shadow-md);
+		/* Brick layout: wide/narrow on top, narrow/wide below — equal row heights. */
+		grid-template-columns: 1.35fr 1fr 1.35fr;
+		grid-template-rows: 1fr 1fr;
+		grid-template-areas:
+			'worship worship prayer'
+			'hug preaching preaching';
+		gap: 3px;
+		min-height: 16rem;
+		background: #fff;
+		transform: translateY(-2vw);
+		animation: fade-in 0.9s ease 0.1s both;
 	}
 
-	.facts li {
+	.collage img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+
+	.collage .worship {
+		grid-area: worship;
+		object-position: 50% 35%;
+	}
+
+	.collage .prayer {
+		grid-area: prayer;
+		object-position: 50% 30%;
+	}
+
+	.collage .hug {
+		grid-area: hug;
+		/* Keep faces in the upper half so the wave can lap the bottom. */
+		object-position: 50% 28%;
+	}
+
+	.collage .preaching {
+		grid-area: preaching;
+		object-position: 48% 22%;
+	}
+
+	.sticky {
+		position: absolute;
+		z-index: 2;
+		left: 50%;
+		top: 58%;
+		width: min(14rem, 48vw);
+		aspect-ratio: 1;
+		padding: 1.5rem 1.15rem 1.25rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.2rem;
-		padding: 1.35rem 1.5rem;
-		background: var(--paper);
+		align-items: center;
+		justify-content: center;
+		gap: 0.55rem;
+		background: #f3ebe0;
+		box-shadow:
+			0 1px 1px rgb(22 38 46 / 0.06),
+			0 10px 28px rgb(22 38 46 / 0.14);
+		transform: translate(-50%, -50%) rotate(-3.5deg);
+		animation: sticky-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 	}
 
-	.fact-label {
-		font-size: 0.6875rem;
-		font-weight: 700;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-		color: var(--amber-deep);
+	.tape {
+		position: absolute;
+		top: -0.35rem;
+		left: 50%;
+		width: 3.4rem;
+		height: auto;
+		transform: translateX(-50%) rotate(-1deg);
+		filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.22));
+		overflow: visible;
 	}
 
-	.fact-value {
-		font-family: var(--font-display);
-		font-size: 1.1875rem;
+	.tape path {
+		fill: rgb(70 74 72 / 0.78);
+	}
+
+	.sticky p {
+		font-family: Caveat, 'Segoe Print', 'Bradley Hand', cursive;
+		font-size: clamp(1.55rem, 2.8vw, 1.95rem);
 		font-weight: 600;
-		font-variation-settings: 'opsz' 24;
-		line-height: 1.25;
+		line-height: 1.15;
+		text-align: center;
+		color: #3a2f28;
 	}
 
-	.fact-sub {
-		font-size: 0.9375rem;
-		color: var(--ink-soft);
+	.sticky-heart {
+		display: grid;
+		place-items: center;
+		width: 1.35rem;
+		height: 1.15rem;
+		color: var(--clay);
 	}
 
-	@media (min-width: 640px) {
-		.facts {
-			grid-template-columns: repeat(3, 1fr);
+	.sticky-heart svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(0.7rem);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 
-	@media (min-width: 960px) {
-		.with-art .inner {
-			grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+	@keyframes heart-in {
+		from {
+			opacity: 0;
+			transform: rotate(-10deg) scale(0.7);
+		}
+		to {
+			opacity: 1;
+			transform: rotate(-10deg) scale(1);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes sticky-in {
+		from {
+			opacity: 0;
+			transform: translate(-50%, -42%) rotate(-8deg);
+		}
+		to {
+			opacity: 1;
+			transform: translate(-50%, -50%) rotate(-3.5deg);
+		}
+	}
+
+	@keyframes sticky-in-mobile {
+		from {
+			opacity: 0;
+			transform: translateY(0.6rem) rotate(-8deg);
+		}
+		to {
+			opacity: 1;
+			transform: rotate(-3.5deg);
+		}
+	}
+
+	@media (min-width: 860px) {
+		.stage {
+			grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
 		}
 
-		.with-art .copy {
-			align-items: start;
-			text-align: left;
+		.copy {
+			/* Center the block in the left column; keep lines left-aligned. */
+			display: grid;
+			grid-template-columns: max-content;
+			justify-content: center;
+			align-content: center;
+			justify-items: start;
+			padding: clamp(1.75rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.5rem);
 		}
 
-		.with-art .tagline {
-			justify-content: flex-start;
+		.collage {
+			min-height: 100%;
+			height: 100%;
 		}
 
-		.with-art .cta {
-			justify-content: flex-start;
+		/* Wave laps the bottom of the photos, as in the reference. */
+		.hero :global(.ridges) {
+			margin-top: clamp(-3rem, -5.5vw, -4.25rem);
+			height: clamp(64px, 8vw, 110px);
+		}
+
+		.sticky {
+			left: 46%;
+			top: 50%;
+			width: min(13.5rem, 18vw);
+		}
+	}
+
+	@media (max-width: 859px) {
+		.hero {
+			max-height: none;
+		}
+
+		.copy {
+			padding-top: clamp(1.75rem, 5vw, 2.5rem);
+		}
+
+		.sticky {
+			top: auto;
+			bottom: 1.25rem;
+			left: 1.25rem;
+			transform: rotate(-3.5deg);
+			width: min(11.5rem, 42vw);
+			animation-name: sticky-in-mobile;
+		}
+
+		.collage {
+			min-height: 18rem;
+		}
+
+		.hero :global(.ridges) {
+			margin-top: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.heart,
+		.title,
+		.tagline,
+		.lede,
+		.meta,
+		.cta,
+		.collage,
+		.sticky {
+			animation: none;
 		}
 	}
 </style>
