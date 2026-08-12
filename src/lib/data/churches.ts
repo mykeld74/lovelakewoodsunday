@@ -1,5 +1,6 @@
 import graceFellowshipLogo from '$lib/assets/churchLogos/GraceFellowshipLogo.webp';
 import lakewoodVineyardLogo from '$lib/assets/churchLogos/LakewoodVineyardLogo.webp';
+import sietePilaresLogo from '$lib/assets/churchLogos/SietePilares.webp';
 import bridgeChurchLogo from '$lib/assets/churchLogos/BridgeChurchLogo.webp';
 import westwoodsCcLogo from '$lib/assets/churchLogos/WestwoodsCCLogo.webp';
 
@@ -60,7 +61,9 @@ export const churches: Church[] = [
 		id: 'siete-pilares',
 		name: 'Siete Pilares',
 		initials: 'SP',
-		// TODO: confirm website, address, and logo with the congregation.
+		logo: sietePilaresLogo,
+		url: 'https://www.facebook.com/iglesia.siete.pilares.denver',
+		// TODO: confirm address with the congregation.
 		language: 'Servicios en español'
 	},
 	{
