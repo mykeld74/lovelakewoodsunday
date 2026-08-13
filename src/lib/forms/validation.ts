@@ -5,7 +5,10 @@ export type FieldErrors = Record<string, string>;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const roleIds = new Set(volunteerRoles.map((role) => role.id));
 
-export function cleanText(value: FormDataEntryValue | string | null | undefined, max = 500): string {
+export function cleanText(
+	value: FormDataEntryValue | string | null | undefined,
+	max = 500
+): string {
 	if (typeof value !== 'string') return '';
 	return value.trim().replace(/\s+/g, ' ').slice(0, max);
 }

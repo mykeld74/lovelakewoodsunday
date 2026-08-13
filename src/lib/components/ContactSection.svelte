@@ -111,10 +111,7 @@
 								await update({ reset: result.type === 'success' });
 								submitting = false;
 								if (result.type === 'failure' && result.data?.errors) {
-									focusFirstError(
-										result.data.errors as Record<string, string>,
-										fieldIds
-									);
+									focusFirstError(result.data.errors as Record<string, string>, fieldIds);
 								}
 							};
 						}}
@@ -194,8 +191,7 @@
 								aria-required="true"
 								aria-invalid={errors.message ? 'true' : undefined}
 								aria-describedby={errors.message ? 'contact-message-error' : undefined}
-								oninput={() => clearError('message')}
-								>{values.message ?? ''}</textarea
+								oninput={() => clearError('message')}>{values.message ?? ''}</textarea
 							>
 							<FormError id="contact-message-error" message={errors.message} />
 						</div>

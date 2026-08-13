@@ -1,15 +1,31 @@
 <script lang="ts">
-	import { site, invitation } from '$lib/config/site';
+	import { site, invitation, inviteLink } from '$lib/config/site';
 	import Icon from './Icon.svelte';
 
 	let {
-		/** Appended to the shared URL so churches can see which channel worked. */
-		source = 'site',
+		/**
+		 * Recorded as `utm_content`. Left unset on the guest-facing home page so
+		 * the link a visitor copies and pastes into a text stays as short as
+		 * possible; the church share kit sets it, because knowing the kit was
+		 * used is worth the extra few characters there.
+		 */
+		placement,
 		compact = false
-	}: { source?: string; compact?: boolean } = $props();
+	}: { placement?: string; compact?: boolean } = $props();
 
-	const shareUrl = $derived(`${site.url}/?utm_source=${source}`);
-	const encodedUrl = $derived(encodeURIComponent(shareUrl));
+	/*
+		Each button carries its own link, so text, email, Facebook and X arrive
+		in Analytics as separate sources. They previously all shared one URL,
+		which meant the four channels were indistinguishable once someone
+		clicked through.
+
+		The link shown and copied is the bare short link: it is the one people
+		read and retype, so it stays clean.
+	*/
+	const copyUrl = $derived(inviteLink('invite', placement));
+	const smsUrl = $derived(inviteLink('text', placement));
+	const emailUrl = $derived(inviteLink('email', placement));
+
 	const encodedText = encodeURIComponent(invitation.short);
 	const emailSubject = encodeURIComponent(invitation.subject);
 
@@ -19,26 +35,26 @@
 			label: 'Text it',
 			icon: 'message',
 			// The ?&body= form is the one both iOS and Android accept.
-			href: `sms:?&body=${encodeURIComponent(invitation.sms + shareUrl)}`
+			href: `sms:?&body=${encodeURIComponent(invitation.sms + smsUrl)}`
 		},
 		{
 			id: 'email',
 			label: 'Email it',
 			icon: 'mail',
-			href: `mailto:?subject=${emailSubject}&body=${encodeURIComponent(invitation.email + shareUrl + '\n')}`
+			href: `mailto:?subject=${emailSubject}&body=${encodeURIComponent(invitation.email + emailUrl + '\n')}`
 		},
 		{
 			id: 'facebook',
 			label: 'Facebook',
 			icon: 'share',
-			href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+			href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink('facebook', placement))}`,
 			external: true
 		},
 		{
 			id: 'x',
 			label: 'X',
 			icon: 'share',
-			href: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+			href: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodeURIComponent(inviteLink('x', placement))}`,
 			external: true
 		}
 	]);
@@ -48,11 +64,11 @@
 
 	async function copyLink() {
 		try {
-			await navigator.clipboard.writeText(shareUrl);
+			await navigator.clipboard.writeText(copyUrl);
 		} catch {
 			// Older browsers and non-secure contexts have no clipboard API.
 			const field = document.createElement('input');
-			field.value = shareUrl;
+			field.value = copyUrl;
 			document.body.append(field);
 			field.select();
 			document.execCommand('copy');
@@ -80,7 +96,7 @@
 			await navigator.share({
 				title: site.name,
 				text: invitation.short,
-				url: shareUrl
+				url: copyUrl
 			});
 		} catch {
 			// The person dismissed the share sheet — nothing to do.
@@ -90,7 +106,7 @@
 
 <div class="share" class:compact>
 	<div class="link-row">
-		<span class="link-text" title={shareUrl}>{shareUrl.replace(/^https?:\/\//, '')}</span>
+		<span class="link-text" title={copyUrl}>{copyUrl.replace(/^https?:\/\//, '')}</span>
 		<button type="button" class="btn copy" onclick={copyLink}>
 			<Icon name={copied ? 'check' : 'copy'} size={18} />
 			{copied ? 'Copied!' : 'Copy link'}

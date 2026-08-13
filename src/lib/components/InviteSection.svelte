@@ -15,7 +15,7 @@
 					morning to invite them to.
 				</p>
 
-				<ShareButtons source="invite" />
+				<ShareButtons />
 
 				<p class="fine">
 					Every link goes to this page, so whoever you send it to gets the same honest answers you

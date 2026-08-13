@@ -3,10 +3,15 @@
 	import { page } from '$app/state';
 	import { dev } from '$app/environment';
 
-	const measurementId = 'G-MDWF5EPCXL';
+	/** The snippet in app.html already records the first page. Skip that one. */
+	let isFirstLoad = true;
 
 	afterNavigate(() => {
-		if (dev) return;
+		if (dev || isFirstLoad) {
+			isFirstLoad = false;
+			return;
+		}
+
 		window.gtag?.('event', 'page_view', {
 			page_title: document.title,
 			page_location: page.url.href,
@@ -14,17 +19,3 @@
 		});
 	});
 </script>
-
-<svelte:head>
-	{#if !dev}
-		<script async src="https://www.googletagmanager.com/gtag/js?id={measurementId}"></script>
-		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag() {
-				dataLayer.push(arguments);
-			}
-			gtag('js', new Date());
-			gtag('config', 'G-MDWF5EPCXL', { send_page_view: false });
-		</script>
-	{/if}
-</svelte:head>

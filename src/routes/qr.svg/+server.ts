@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { site } from '$lib/config/site';
+import { inviteLink, type ShareCode } from '$lib/config/site';
 import type { RequestHandler } from './$types';
 
 /**
@@ -8,8 +8,10 @@ import type { RequestHandler } from './$types';
  * /qr.svg?source=bulletin
  */
 export const GET: RequestHandler = async ({ url }) => {
-	const source = (url.searchParams.get('source') ?? 'qr').replace(/[^a-z0-9_-]/gi, '').slice(0, 40);
-	const target = `${site.url}/?utm_source=${source || 'qr'}`;
+	// A short target keeps the QR's data density low, so it scans from
+	// further away and survives being printed small.
+	const code = (url.searchParams.get('source') ?? 'qr').replace(/[^a-z0-9_-]/gi, '').slice(0, 40);
+	const target = inviteLink((code || 'qr') as ShareCode);
 
 	const svg = await QRCode.toString(target, {
 		type: 'svg',

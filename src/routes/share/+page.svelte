@@ -3,26 +3,32 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import ShareButtons from '$lib/components/ShareButtons.svelte';
 	import CopyBlock from '$lib/components/CopyBlock.svelte';
-	import { site, event, venue, addressLine, invitation, media } from '$lib/config/site';
+	import { site, event, venue, addressLine, invitation, media, inviteLink } from '$lib/config/site';
 
-	const link = `${site.url}/invite`;
+	const link = inviteLink();
+
+	/*
+		Each sample carries its own tagged short link, so a church pasting the
+		bulletin wording shows up in Analytics separately from one posting to
+		social. Untagged, all of it would arrive as direct traffic.
+	*/
 
 	const samples = [
 		{
 			label: 'Text message',
-			text: `${invitation.sms}${site.url}`
+			text: `${invitation.sms}${inviteLink('text', 'kit')}`
 		},
 		{
 			label: 'Social post',
-			text: `${invitation.short}\n\n${event.dateLabel} · ${event.timeLabel}\n${venue.name} ${venue.room}, ${venue.city}\n\nAll the details: ${site.url}`
+			text: `${invitation.short}\n\n${event.dateLabel} · ${event.timeLabel}\n${venue.name} ${venue.room}, ${venue.city}\n\nAll the details: ${inviteLink('social', 'kit')}`
 		},
 		{
 			label: 'Bulletin / slide announcement',
-			text: `LOVE LAKEWOOD SUNDAY\nOne Sunday. One Church. One City.\n\n${event.dateLabel} at ${event.timeLabel}\n${venue.name} ${venue.room}\n${addressLine}\n\nChurches from across Lakewood are gathering for one service. About an hour. Free. No offering will be taken. Everyone is welcome — bring a friend, a neighbor, anyone.\n\n${site.url}`
+			text: `LOVE LAKEWOOD SUNDAY\nOne Sunday. One Church. One City.\n\n${event.dateLabel} at ${event.timeLabel}\n${venue.name} ${venue.room}\n${addressLine}\n\nChurches from across Lakewood are gathering for one service. About an hour. Free. No offering will be taken. Everyone is welcome — bring a friend, a neighbor, anyone.\n\n${inviteLink('bulletin', 'kit')}`
 		},
 		{
 			label: 'Email invitation',
-			text: `Subject: ${invitation.subject}\n\n${invitation.email}${site.url}`
+			text: `Subject: ${invitation.subject}\n\n${invitation.email}${inviteLink('email', 'kit')}`
 		}
 	];
 </script>
@@ -57,7 +63,7 @@
 					Every link below lands on the same page, so whoever you send it to gets the same honest
 					answers about parking, kids, what to wear, and what the hour will be like.
 				</p>
-				<ShareButtons source="sharekit" compact />
+				<ShareButtons placement="kit" compact />
 
 				<div class="short-link">
 					<span class="short-label">Short link for print &amp; pulpit</span>

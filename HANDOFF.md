@@ -50,10 +50,11 @@ billing is the whole point of the design.
 and the first nav item, and it now has a page of its own at `/visit`. That page
 is where a nervous first-time guest goes.
 
-**"How hard is it to include copy/text/email/social share buttons?"** Done.
-`/#invite` has copy-link, text, email, Facebook, and X, plus the native phone
-share sheet when the browser offers one. Every link carries a `utm_source` so you
-can see which channel actually brought people.
+**"How hard is it to include copy/text/email/social share buttons?"** Done. The
+home page has copy-link, text, email, Facebook, and X, plus the native phone
+share sheet when the browser offers one. Each button carries its own tagged link,
+so the four channels report separately in Analytics — see _Tracking where people
+came from_ below.
 
 **"Any chance the site could provide an invitation link the churches can share?"**
 Yes — `/share` is a share kit built for the churches: the link, a downloadable QR
@@ -161,6 +162,83 @@ pnpm run build
 ```
 
 Requires pnpm 11 (`npx pnpm@11 <command>` works if your local pnpm is older).
+
+---
+
+## Tracking where people came from
+
+Google Analytics 4 is installed in `src/app.html` (measurement ID
+`G-MDWF5EPCXL`). GA4 reads UTM parameters off the URL by itself — there is no
+extra tagging code to write.
+
+### Nothing to do in code; two things to check in GA
+
+1. **Turn on history-based page views.** This is a single-page app, so moving
+   from `/visit` to `/faq` does not reload the browser. In GA: _Admin → Data
+   streams → your web stream → Enhanced measurement → the gear icon → "Page
+   changes based on browser history events."_ It is on by default, but worth
+   confirming. Campaign attribution works either way — GA credits the session
+   from the first page view, which is the one carrying the parameters.
+2. **Extend data retention.** The default is 2 months, which will have expired
+   before anyone sits down to review how the morning went. _Admin → Data
+   settings → Data retention → 14 months._ Do this now; it is not retroactive.
+
+### Where to look afterwards
+
+- _Reports → Acquisition → Traffic acquisition_, then switch the dimension to
+  **Session source / medium**. This is the main one.
+- Add **Session manual ad content** as a secondary dimension to separate links
+  handed out by the share kit (`kit`) from links shared off the home page.
+- _Realtime_ shows the last 30 minutes and is the fastest way to confirm a new
+  QR code or printed link works. Standard reports lag 24–48 hours.
+
+### How the links are tagged
+
+Shared links are short — `lovelakewoodsunday.org/invite?s=text` — and the server
+expands the code into the full parameter set when it redirects. Two reasons: the
+people receiving these read the URL in a text from a friend, and a short URL
+makes a noticeably simpler QR code (a 33×33 grid instead of 45×45, so it scans
+from further away and survives being printed small).
+
+| Link                 | Reports as                             |
+| -------------------- | -------------------------------------- |
+| `/invite`            | source `invite`, medium `link`         |
+| `/invite?s=text`     | source `sms`, medium `text`            |
+| `/invite?s=email`    | source `email`, medium `email`         |
+| `/invite?s=facebook` | source `facebook`, medium `social`     |
+| `/invite?s=x`        | source `x`, medium `social`            |
+| `/invite?s=social`   | source `social`, medium `social`       |
+| `/invite?s=qr`       | source `qr`, medium `qr`               |
+| `/invite?s=bulletin` | source `bulletin`, medium `print`      |
+| `/invite?s=pulpit`   | source `pulpit`, medium `announcement` |
+
+Everything also carries `utm_campaign=love-lakewood-sunday`, so the whole push
+reports as one line. Adding `&p=something` records it as `utm_content`.
+
+**`utm_medium` is the part that matters.** A link tagged with only a source gets
+recorded, but GA files it under **Unassigned** in the Default Channel Group,
+which makes the acquisition reports close to useless. Every link the site hands
+out now sets both.
+
+### Giving each church its own link
+
+Any unrecognised code still works and reports under its own name, so each church
+can have one without a code change:
+
+```
+lovelakewoodsunday.org/invite?s=grace-fellowship
+lovelakewoodsunday.org/invite?s=westwoods
+```
+
+That answers "did our congregation actually invite anyone?" To give those a
+tidier medium than the default `link`, add them to `shareSources` in
+`src/lib/config/site.ts`.
+
+### Matching QR codes
+
+`/qr.svg?source=bulletin` and `/qr.png?source=bulletin` generate a code pointing
+at the matching short link, so a scan from the bulletin is distinguishable from
+one off a slide.
 
 ---
 

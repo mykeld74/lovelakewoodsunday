@@ -41,5 +41,7 @@ export function toEmbedUrl(input: string): string | null {
 
 function youtube(id: string) {
 	// youtube-nocookie avoids setting tracking cookies until playback starts.
-	return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1`;
+	// enablejsapi=1 is what lets Analytics' "Video engagement" measurement see
+	// the player at all; without it that setting silently records nothing.
+	return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
 }

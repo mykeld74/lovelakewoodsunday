@@ -103,6 +103,78 @@ export const externalForms = {
 	contact: '' as string
 } as const;
 
+/**
+ * Campaign tagging for Google Analytics.
+ *
+ * Shared links are short — `lovelakewoodsunday.org/invite?s=text` — and the
+ * server expands the code into a full set of UTM parameters when it redirects.
+ * Two reasons for the indirection:
+ *
+ *  1. People *read* these links. They arrive in a text message from a friend,
+ *     and a 90-character tracking URL makes a personal invitation look like
+ *     marketing.
+ *  2. A short URL makes a much simpler, more scannable QR code.
+ *
+ * Keeping the table here means the tags can be renamed without touching a
+ * single component. GA4 needs `utm_medium` as well as `utm_source` — with a
+ * source alone it records the visit but files it under Unassigned.
+ */
+export const campaignName = 'love-lakewood-sunday';
+
+/** Short code → the source/medium pair it expands to. */
+export const shareSources = {
+	invite: { source: 'invite', medium: 'link' },
+	text: { source: 'sms', medium: 'text' },
+	email: { source: 'email', medium: 'email' },
+	facebook: { source: 'facebook', medium: 'social' },
+	x: { source: 'x', medium: 'social' },
+	social: { source: 'social', medium: 'social' },
+	qr: { source: 'qr', medium: 'qr' },
+	print: { source: 'print', medium: 'print' },
+	bulletin: { source: 'bulletin', medium: 'print' },
+	pulpit: { source: 'pulpit', medium: 'announcement' }
+} as const;
+
+export type ShareCode = keyof typeof shareSources;
+
+/** Keeps anything reaching a URL to a safe, readable slug. */
+function slug(value: string): string {
+	return value
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]+/g, '-')
+		.replace(/^-+|-+$/g, '')
+		.slice(0, 40);
+}
+
+/**
+ * The short link to hand out. `placement` records which part of this site
+ * produced it — the home page or the church share kit — and becomes
+ * `utm_content`.
+ */
+export function inviteLink(code: ShareCode = 'invite', placement?: string): string {
+	const params = new URLSearchParams();
+	if (code !== 'invite') params.set('s', code);
+	if (placement) params.set('p', slug(placement));
+	const query = params.toString();
+	return `${site.url}/invite${query ? `?${query}` : ''}`;
+}
+
+/** Expands a short code into the tagged destination the redirect sends people to. */
+export function campaignTarget(code: string, placement?: string): string {
+	const known = shareSources[slug(code) as ShareCode];
+	// An unrecognised code still gets tracked, just under its own name.
+	const { source, medium } = known ?? { source: slug(code) || 'invite', medium: 'link' };
+
+	const params = new URLSearchParams({
+		utm_source: source,
+		utm_medium: medium,
+		utm_campaign: campaignName
+	});
+	if (placement) params.set('utm_content', slug(placement));
+
+	return `/?${params}`;
+}
+
 /** Pre-written invitation copy used by the share buttons and the share kit. */
 export const invitation = {
 	short: `You're invited to Love Lakewood Sunday — one morning of worship, hope, and community with churches from all over Lakewood. Sunday, September 20 at 10 a.m., Bear Creek High School. Everyone is welcome.`,
