@@ -1,3 +1,4 @@
+import comunidadCristianaColoradoLogo from '$lib/assets/churchLogos/ComunidadCristianaColorado.png';
 import graceFellowshipLogo from '$lib/assets/churchLogos/GraceFellowshipLogo.webp';
 import lakewoodVineyardLogo from '$lib/assets/churchLogos/LakewoodVineyardLogo.webp';
 import sietePilaresLogo from '$lib/assets/churchLogos/SietePilares.webp';
@@ -37,6 +38,15 @@ export type Church = {
  * left blank is waiting on the church — see HANDOFF.md.
  */
 export const churches: Church[] = [
+	{
+		id: 'comunidad-cristiana-colorado',
+		name: 'Comunidad Cristiana Colorado',
+		initials: 'CCC',
+		logo: comunidadCristianaColoradoLogo,
+		url: 'https://www.comunidadcristianacolorado.com/',
+		// TODO: confirm address and Sunday service times with the congregation.
+		language: 'Servicios en español'
+	},
 	{
 		id: 'grace-fellowship',
 		name: 'Grace Fellowship',

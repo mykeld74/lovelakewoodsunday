@@ -98,8 +98,20 @@
 		padding: 0;
 		margin-top: clamp(2.25rem, 4vw, 3.25rem);
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+		grid-template-columns: 1fr;
 		gap: 1.15rem;
+	}
+
+	@media (min-width: 640px) {
+		.cards {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (min-width: 960px) {
+		.cards {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
 	}
 
 	.church {

@@ -57,12 +57,16 @@
 		padding: 0;
 		margin-top: clamp(2.25rem, 4vw, 3.25rem);
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 1px;
 		background: var(--line);
 		border: 1px solid var(--line);
 		border-radius: var(--radius-lg);
 		overflow: hidden;
+	}
+
+	.roster > li {
+		background: var(--paper);
 	}
 
 	.roster a,
@@ -75,7 +79,6 @@
 		height: 100%;
 		min-height: 11rem;
 		padding: 1.75rem 1.25rem;
-		background: var(--paper);
 		text-align: center;
 		text-decoration: none;
 		transition: background-color 0.16s ease;
@@ -92,5 +95,11 @@
 		font-variation-settings: 'opsz' 24;
 		line-height: 1.25;
 		text-wrap: balance;
+	}
+
+	@media (min-width: 720px) {
+		.roster {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
 	}
 </style>
