@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
 	import ExpectSection from '$lib/components/ExpectSection.svelte';
-	import WelcomeVideo from '$lib/components/WelcomeVideo.svelte';
 	import PageNext from '$lib/components/PageNext.svelte';
 </script>
 
@@ -11,7 +10,6 @@
 />
 
 <ExpectSection level={1} />
-<WelcomeVideo />
 
 <PageNext
 	next={{
